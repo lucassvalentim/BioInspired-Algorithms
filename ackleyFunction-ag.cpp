@@ -30,8 +30,8 @@ namespace algorithm
             return str;
         }
 
-        std::vector<int> decode(std::vector<std::pair<int, int>> &bounds, std::size_t n_bits, std::string bitstring){
-            std::vector<int> decoded(bounds.size());
+        std::vector<double> decode(std::vector<std::pair<int, int>> &bounds, std::size_t n_bits, std::string bitstring){
+            std::vector<double> decoded(bounds.size());
             double largest = pow(2, n_bits);
             for(int i = 0; i < bounds.size(); i++){ 
                 std::string substring = "";
@@ -54,6 +54,13 @@ namespace algorithm
             return decoded;
         }
     } // namespace detail
+
+    class individual {
+        private:
+            void calculate_fitness(std::vector<int> x){
+
+            }
+    }
     
 }
 
@@ -61,11 +68,11 @@ int main(){
 
     srand(time(NULL));
 
-    int n_bits = 4;
-    std::vector<std::pair<int, int>> bounds = {{-10, 10}, {-10, 10}};
+    int n_bits = 128;
+    std::vector<std::pair<int, int>> bounds = {{-2, 2}, {-2, 2}, {-2, 2}};
     std::string s = algorithm::detail::get_random_string(n_bits*bounds.size());
     cout << "s: " << s << endl;
-    std::vector<int> values = algorithm::detail::decode(bounds, n_bits, s); 
+    std::vector<double> values = algorithm::detail::decode(bounds, n_bits, s); 
     
     
     cout << s << endl;
