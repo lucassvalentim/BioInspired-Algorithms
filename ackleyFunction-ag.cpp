@@ -2,93 +2,134 @@
 using std::cout;
 using std::endl;
 
-// namespace algorithm
-// {
-//     namespace detail
-//     {   
-//         double bitTointeger(std::string bit){
-//             double integer = 0;
-//             double position = 1;
-//             for(int i = bit.size() - 1; i >= 0; i--){
-//                 if(bit[i] == '1') integer += position;
-//                 position *= 2;
-//             }
+#define pi 3.1415
 
-//             return integer;
-//         }
+namespace algorithm
+{
+    namespace detail
+    {   
+        double bitTointeger(std::string bit){
+            double integer = 0;
+            double position = 1;
+            for(int i = bit.size() - 1; i >= 0; i--){
+                if(bit[i] == '1') integer += position;
+                position *= 2;
+            }
 
-//         auto get_random_bit = []() -> char
-//         {
-//             const char charset[] = "01";
-//             const size_t max_index = (sizeof(charset) - 1);
-//             return charset[rand() % max_index];
-//         };
+            return integer;
+        }
 
-//         auto get_random_string(const size_t length){
-//             std::string str(length, 0);
-//             std::generate_n(str.begin(), length, get_random_bit);
-//             return str;
-//         }
+        auto get_random_bit = []() -> char
+        {
+            const char charset[] = "01";
+            const size_t max_index = (sizeof(charset) - 1);
+            return charset[rand() % max_index];
+        };
 
-//         std::vector<double> decode(std::vector<std::pair<int, int>> &bounds, std::size_t n_bits, std::string bitstring){
-//             std::vector<double> decoded(bounds.size());
-//             double largest = pow(2, n_bits);
-//             for(int i = 0; i < bounds.size(); i++){ 
-//                 std::string substring = "";
-//                 int start = i * n_bits;
-//                 int end = (i * n_bits) + n_bits;
-//                 for(int j = start; j < end; j++){
-//                     substring += bitstring[j];
-//                 }
-//                 cout << "substring: " << substring << endl;
+        auto get_random_string(const size_t length){
+            std::string str(length, 0);
+            std::generate_n(str.begin(), length, get_random_bit);
+            return str;
+        }
 
-//                 double integer = bitTointeger(substring);
-//                 cout << "largest: " << largest << endl;
-//                 cout << "integer: " << integer << endl;
-//                 cout << "inter/largest: " << (integer/largest) << endl;
-//                 double value = bounds[i].first + (integer/largest) * (bounds[i].second - bounds[i].first);
+        std::vector<double> decode(std::vector<std::pair<int, int>> &bounds, std::size_t n_bits, std::string bitstring){
+            std::vector<double> decoded(bounds.size());
+            double largest = pow(2, n_bits);
+            for(int i = 0; i < bounds.size(); i++){ 
+                std::string substring = "";
+                int start = i * n_bits;
+                int end = (i * n_bits) + n_bits;
+                for(int j = start; j < end; j++){
+                    substring += bitstring[j];
+                }
+                cout << "substring: " << substring << endl;
 
-//                 decoded[i] = value;
-//             }
+                double integer = bitTointeger(substring);
+                cout << "largest: " << largest << endl;
+                cout << "integer: " << integer << endl;
+                cout << "inter/largest: " << (integer/largest) << endl;
+                double value = bounds[i].first + (integer/largest) * (bounds[i].second - bounds[i].first);
 
-//             return decoded;
-//         }
-//     } // namespace detail
+                decoded[i] = value;
+            }
 
-//     class individual {
-//         private:
-//             void calculate_fitness(std::vector<int>& x){
-//                 // m_fitness = -20*exp();
-//             }
+            return decoded;
+        }
+    } // namespace detail
+
+    class individual {
+        public:
+            individual(std::vector<std::pair<int, int>> &bound, ::size_t n_bits) : m_value(detail::get_random_string(n_bits)), m_fitness(0){
+                std::vector<double> values = detail::decode(bound, n_bits, m_value);
+                calculate_fitness(values);
+            }
+
+            individual(const std::string value, std::vector<std::pair<int, int>> &bound, ::size_t n_bits) : m_value(value), m_fitness(0){
+                std::vector<double> values = detail::decode(bound, n_bits, m_value);
+                calculate_fitness(values);
+            }
+
+            std::string get_value() const{
+                return this->m_value;
+            }
+
+            std::size_t get_fitness() const{
+                return this->m_fitness;
+            }
+
+            auto operator [](const int i) const {
+                return this->m_value[i];
+            }
+
+            auto operator > (const individual &rhs) const {
+                return (this->m_fitness > rhs.m_fitness);
+            }
+            
+        private:
+            void calculate_fitness(std::vector<double>& x){
+                int n = x.size();
+            
+                double somatorio1 = 0;
+                for(int i = 0; i < n; i++){
+                    somatorio1 += pow(x[i], 2);
+                }
+            
+                double somatorio2 = 0;
+                for(int i = 0; i < n; i++){
+                    somatorio2 += cos(2 * M_PI * x[i]);
+                }
+            
+                this->m_fitness = -20 * exp(-0.2 * sqrt(somatorio1 / n)) 
+                        - exp(somatorio2 / n) 
+                        + 20 + exp(1);
+            }
         
-//         private:
-//             std::string m_value;
-//             std::size_t m_fitness;
-//     }
+        
+        private:
+            std::string m_value;
+            std::size_t m_fitness;
+    };
     
-// }
+}
+
 
 int main(){
 
-    // srand(time(NULL));
+    srand(time(NULL));
 
-    // int n_bits = 128;
-    // std::vector<std::pair<int, int>> bounds = {{-2, 2}, {-2, 2}, {-2, 2}};
-    // std::string s = algorithm::detail::get_random_string(n_bits*bounds.size());
-    // cout << "s: " << s << endl;
-    // std::vector<double> values = algorithm::detail::decode(bounds, n_bits, s); 
+    int n_bits = 128;
+    std::vector<std::pair<int, int>> bounds = {{-2, 2}, {-2, 2}, {-2, 2}};
+    std::string s = algorithm::detail::get_random_string(n_bits*bounds.size());
+    cout << "s: " << s << endl;
+    std::vector<double> values = algorithm::detail::decode(bounds, n_bits, s); 
     
     
-    // cout << s << endl;
-    // cout << algorithm::detail::bitTointeger(s) << endl;
-    // for(auto v : values){
-    //     cout << v << ' ';
-    // }
-    // cout << endl;
-    
-    void calculate_fitness(std::vector<int>& x){
-        int tam = x.size();
+    cout << s << endl;
+    cout << algorithm::detail::bitTointeger(s) << endl;
+    for(auto v : values){
+        cout << v << ' ';
     }
-        
+    cout << endl;
+
     return 0;
 }
