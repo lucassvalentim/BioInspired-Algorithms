@@ -2,8 +2,6 @@
 using std::cout;
 using std::endl;
 
-#define pi 3.1415
-
 namespace algorithm
 {
     namespace detail
@@ -59,12 +57,14 @@ namespace algorithm
 
     class individual {
         public:
-            individual(std::vector<std::pair<int, int>> &bound, ::size_t n_bits) : m_value(detail::get_random_string(n_bits)), m_fitness(0){
+            individual(std::vector<std::pair<int, int>> &bound, std::size_t n_bits)
+                        : m_value(detail::get_random_string(n_bits*bound.size())), m_fitness(0.0){
                 std::vector<double> values = detail::decode(bound, n_bits, m_value);
                 calculate_fitness(values);
             }
 
-            individual(const std::string value, std::vector<std::pair<int, int>> &bound, ::size_t n_bits) : m_value(value), m_fitness(0){
+            individual(const std::string value, std::vector<std::pair<int, int>> &bound, ::size_t n_bits) 
+                        : m_value(value), m_fitness(0.0){
                 std::vector<double> values = detail::decode(bound, n_bits, m_value);
                 calculate_fitness(values);
             }
@@ -73,7 +73,7 @@ namespace algorithm
                 return this->m_value;
             }
 
-            std::size_t get_fitness() const{
+            double get_fitness() const{
                 return this->m_fitness;
             }
 
@@ -107,7 +107,52 @@ namespace algorithm
         
         private:
             std::string m_value;
-            std::size_t m_fitness;
+            double m_fitness;
+    };
+
+    individual create_child(const individual &p1, const individual &p2, std::vector<std::pair<int, int>> &bound, ::size_t n_bits){
+        std::string c1{""};
+
+        std::size_t length = p2.get_value().size();
+        std::size_t index = (rand() % (length - 2)) + 1;
+
+        cout << "index: " << index << endl;
+
+        for(int i = 0; i < index; i++){
+            c1 += p1.get_value()[i];
+        }
+
+        for(int i = index; i < length; i++){
+            c1 += p2.get_value()[i];
+        }
+
+        return individual{c1, bound, n_bits};
+    }
+
+    class population{
+        public:
+            population(const std::size_t length_population, const std::size_t parent_ratio, std::size_t mutate_probability, std::size_t transfer_elite_ratio, std::vector<std::pair<int, int>> &bound, ::size_t n_bits)
+            : m_generation{1}, m_parent_ratio{parent_ratio}, m_mutate_probability{mutate_probability}{
+
+                m_transfer_count = (transfer_elite_ratio*length_population);
+                m_new_individuals_per_generation = length_population - m_transfer_count;
+                m_population.reserve(length_population);
+
+                std::generate_n(std::back_inserter(m_population), length_population, [&](){return individual(bound, n_bits);});
+                    
+            }
+
+            std::vector<individual> get_pop(){
+                return m_population;
+            }
+        private:
+            std::vector<individual> m_population;
+            std::size_t m_generation;
+            std::size_t m_parent_ratio;
+            std::size_t m_mutate_probability;
+            std::size_t m_transfer_count; // quantidade da elite
+            std::size_t m_crossover_threshold; // quantidade de pais
+            std::size_t m_new_individuals_per_generation;
     };
     
 }
@@ -117,19 +162,15 @@ int main(){
 
     srand(time(NULL));
 
-    int n_bits = 128;
-    std::vector<std::pair<int, int>> bounds = {{-2, 2}, {-2, 2}, {-2, 2}};
-    std::string s = algorithm::detail::get_random_string(n_bits*bounds.size());
-    cout << "s: " << s << endl;
-    std::vector<double> values = algorithm::detail::decode(bounds, n_bits, s); 
-    
-    
-    cout << s << endl;
-    cout << algorithm::detail::bitTointeger(s) << endl;
-    for(auto v : values){
-        cout << v << ' ';
-    }
-    cout << endl;
+    int n_bits = 32;
+    std::vector<std::pair<int, int>> bounds = {{-10, 10}, {-10, 10}};
+    const std::size_t length_population = 100;
+    const std::size_t parent_ratio = 0.9; 
+    std::size_t mutate_probability = 0.5;
+    std::size_t transfer_elite_ratio = 0.02;
+    algorithm::population pop(length_population, parent_ratio, mutate_probability, transfer_elite_ratio, bounds, n_bits);
 
+    for(algorithm::individual inv : pop.get_pop())
+        cout << inv.get_value() << " " << inv.get_fitness() << endl;
     return 0;
 }
