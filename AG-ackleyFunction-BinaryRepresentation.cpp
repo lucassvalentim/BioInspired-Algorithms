@@ -107,8 +107,7 @@ namespace algorithm
                 for(int i = 0; i < n; i++){
                     somatorio2 += cos(2 * M_PI * x[i]);
                 }
-                
-                // ackley function
+            
                 this->m_fitness = -20 * exp(-0.2 * sqrt(somatorio1 / n)) 
                         - exp(somatorio2 / n) 
                         + 20 + exp(1);
@@ -231,7 +230,7 @@ int main(){
 
     int n_bits = 32;
     std::vector<std::pair<int, int>> bounds = {{-2, 2}, {-2, 2}};
-    const std::size_t length_population = 100;
+    const std::size_t length_population = 500;
     const std::size_t parent_ratio = 90; 
     std::size_t mutate_probability = 10;
     std::size_t transfer_elite_ratio = 0.02;
