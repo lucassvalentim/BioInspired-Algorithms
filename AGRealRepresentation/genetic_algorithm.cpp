@@ -22,7 +22,7 @@ individual::individual(std::size_t length, const std::pair<double, double>& boun
     calculate_fitness(m_value);
 }
 
-individual::individual(const std::vector<double>& value, const std::pair<double, double>& bound)
+individual::individual(const std::vector<double>& value)
     : m_value(value), m_fitness(0.0) {
     calculate_fitness(m_value);
 }
@@ -67,7 +67,7 @@ std::pair<individual, individual> create_child(const individual& X, const indivi
         }
     }
 
-    return { individual(child1, bound), individual(child2, bound) };
+    return { individual(child1), individual(child2) };
 }
 
 individual roulette_method(const std::vector<individual>& m_population) {
@@ -104,19 +104,27 @@ individual roulette_method(const std::vector<individual>& m_population) {
     return m_population.back(); // fallback
 }
 
-std::vector<individual> selection_parents(const std::vector<individual>& m_population, std::size_t m_transfer_count) {
+std::vector<individual> selection_parents(const std::vector<individual>& m_population, std::size_t m_transfer_count){
     std::set<std::vector<double>> selected;
     std::vector<individual> parents;
     parents.reserve(m_population.size() - m_transfer_count);
 
-    while (parents.size() < m_population.size() - m_transfer_count) {
+    const int max_attempts = 10;
+
+    while (parents.size() < m_population.size() - m_transfer_count){
         individual candidate = roulette_method(m_population);
-        if (selected.insert(candidate.get_value()).second) {
-            parents.push_back(candidate);
+        int attempts = 0;
+        while (selected.count(candidate.get_value()) && attempts < max_attempts) {
+            candidate = roulette_method(m_population);
+            attempts++;
         }
+        // Se não conseguir diferente, aceita repetido
+        selected.insert(candidate.get_value());
+        parents.push_back(candidate);
     }
     return parents;
 }
+
 
 population::population(std::size_t length_population, std::size_t parent_ratio, std::size_t mutate_probability, 
                        std::size_t transfer_elite_ratio, const std::pair<double, double>& bound, std::size_t length)
@@ -150,7 +158,7 @@ void population::create_next_generation(const std::pair<double, double>& bound) 
         parents.push_back(m_population.front());
     }
 
-    std::uniform_int_distribution<int> parentsRatio(1, 100);
+    std::uniform_int_distribution<std::size_t> parentsRatio(1, 100);
 
     for (std::size_t i = 0; i < parents.size(); i += 2) {
         if (parentsRatio(rng) <= m_parent_ratio) {
@@ -175,19 +183,16 @@ std::vector<double> genetic_algorithm(
     size_t parent_ratio,
     size_t mutation_probability,
     size_t elite_ratio,
-    int max_generations,
-    bool verbose) {
+    int max_generations) {
     
     population pop(population_size, parent_ratio, mutation_probability, elite_ratio, bounds, dimensions);
 
+    std::vector<double> fitness;
     while (max_generations--) {
-        if (verbose) {
-            std::cout << pop.front().get_fitness() << std::endl;
-        }
+        fitness.push_back(pop.front().get_fitness());
         pop.create_next_generation(bounds);
     }
 
-    return pop.front().get_value();
+    return fitness;
 }
-
 } // namespace genetic_algorithm

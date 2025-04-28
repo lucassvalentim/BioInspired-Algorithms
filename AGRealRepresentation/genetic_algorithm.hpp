@@ -28,7 +28,7 @@ public:
     individual(std::size_t length, const std::pair<double, double>& bound);
 
     // Construtor que recebe um vetor pronto
-    individual(const std::vector<double>& value, const std::pair<double, double>& bound);
+    individual(const std::vector<double>& value);
 
     // Acesso ao vetor de valores
     std::vector<double> get_value() const {
@@ -115,8 +115,7 @@ std::vector<double> genetic_algorithm(
     size_t parent_ratio = 90,
     size_t mutation_probability = 10,
     size_t elite_ratio = 2,
-    int max_generations = 100,
-    bool verbose = false
+    int max_generations = 100
 );
 
 } // namespace genetic_algorithm

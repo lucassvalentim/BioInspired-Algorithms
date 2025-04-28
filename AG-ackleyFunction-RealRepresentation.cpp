@@ -149,18 +149,26 @@ namespace algorithm
 
     // Seleção de pais únicos
     std::vector<individual> selection_parents(const std::vector<individual>& m_population, std::size_t m_transfer_count){
-        std::set<std::vector<double>> selected; // usando vetor para evitar problema de comparação
+        std::set<std::vector<double>> selected;
         std::vector<individual> parents;
         parents.reserve(m_population.size() - m_transfer_count);
-
+    
+        const int max_attempts = 10;
+    
         while (parents.size() < m_population.size() - m_transfer_count){
             individual candidate = roulette_method(m_population);
-            if (selected.insert(candidate.get_value()).second){
-                parents.push_back(candidate);
+            int attempts = 0;
+            while (selected.count(candidate.get_value()) && attempts < max_attempts) {
+                candidate = roulette_method(m_population);
+                attempts++;
             }
+            // Se não conseguir diferente, aceita repetido
+            selected.insert(candidate.get_value());
+            parents.push_back(candidate);
         }
         return parents;
     }
+    
 
     class population{
     public:
@@ -241,15 +249,15 @@ namespace algorithm
 
 int main() {
     int length = 3;
-    std::pair<double, double> bound = {-2.0, 2.0};
-    const std::size_t length_population = 500;
+    std::pair<double, double> bound = {-10.0, 10.0};
+    const std::size_t length_population = 100;
     const std::size_t parent_ratio = 90; // % chance de cruzar
     const std::size_t mutate_probability = 10; // % chance de mutação
-    const std::size_t transfer_elite_ratio = 2; // % da população é elite
+    const std::size_t transfer_elite_ratio = 20; // % da população é elite
 
     algorithm::population pop(length_population, parent_ratio, mutate_probability, transfer_elite_ratio, bound, length);
 
-    int max_iterations = 100;
+    int max_iterations = 300;
     while (max_iterations--){
         cout << pop.front().get_fitness() << endl;
         pop.create_next_generation(bound);
