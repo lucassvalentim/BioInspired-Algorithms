@@ -1,16 +1,22 @@
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra
 
-all: main
+all: mainTabela mainConvergencia
 
-main: genetic_algorithm.o main.o
+mainTabela: mainTabela.o genetic_algorithm.o
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+mainConvergencia: mainConvergencia.o genetic_algorithm.o
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 genetic_algorithm.o: genetic_algorithm.cpp genetic_algorithm.hpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-main.o: main.cpp genetic_algorithm.hpp
+mainTabela.o: mainTabela.cpp genetic_algorithm.hpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+mainConvergencia.o: mainConvergencia.cpp genetic_algorithm.hpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f *.o main
+	rm -f *.o mainTabela mainConvergencia

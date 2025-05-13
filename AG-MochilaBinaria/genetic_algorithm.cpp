@@ -247,7 +247,6 @@ DataResults genetic_algorithm(
     std::vector<std::size_t> fitness;
     DataResults results;
     while (max_generations--) {
-        std::cout << pop.best_individual().get_fitness() << std::endl;
         results.best_individuos_per_generation.push_back(pop.best_individual());
         results.population_per_generation.push_back(pop.get_individuals());
         pop.evolve();
