@@ -7,3 +7,4 @@ epsilon: 10.0
 Q: 10.0
 method: 3
 AverageFitness: 291.0
+

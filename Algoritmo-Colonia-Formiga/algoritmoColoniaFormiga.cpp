@@ -10,7 +10,7 @@ mt19937 generator(rd());
 
 vector<double> runs_each_iteration;
 // Função para ler o grafo e calcular a matriz de distâncias entre os vértices
-ifstream matriz_txt("input/lau15_dist.txt");
+ifstream matriz_txt("input/sgb_128_dist.txt");
 vector<vector<double>> readGraph(int vertexCount){
     vector<vector<double>> graph(vertexCount, vector<double>(vertexCount));
     
@@ -93,6 +93,8 @@ int rouletteWheelSelection(vector<pair<int, double>> &probabilities) {
 
 // Calcula o custo total de um caminho percorrido
 double calculatePathCost(vector<vector<double>> &graph, vector<int> &path) {
+    if(path.size() == 0) return 0;
+
     double totalCost = 0;
     for (int i = 1; i < path.size(); i++) {
         totalCost += graph[path[i - 1]][path[i]];
@@ -257,7 +259,7 @@ double ACO(vector<vector<double>> &graph,
         if(choiceMethod == 1)
             reinforcePheromones(graph, antPaths, pheromones, Q);
         else if(choiceMethod == 2)
-            reinforcePheromones(graph, antPaths, bestSolution, pheromones, Q, epsilon);
+            reinforcePheromones(graph, antPaths, bestPath, pheromones, Q, epsilon);
         else
             reinforcePheromones(graph,bestPath, pheromones, Q);
 
@@ -272,7 +274,7 @@ double ACO(vector<vector<double>> &graph,
 
 void fatorial_test(vector<vector<double>> &graph, int vertexCount){
     vector<double> evaporationRates = {0.1, 0.3, 0.5};
-    vector<int> maxIterationsSet = {50, 100, 300}; // Mantido fixo para este exemplo
+    vector<int> maxIterationsSet = {50, 100, 300};
     vector<double> alphas = {1.0, 2.5};
     vector<double> betas = {1, 2.0, 5.0};
     vector<double> Qs = {10, 100};
@@ -329,16 +331,16 @@ void fatorial_test(vector<vector<double>> &graph, int vertexCount){
 }
 
 void run_best_parameters(vector<vector<double>> &graph, int vertexCount){
-    double evaporationRates = 0.3;
-    int maxIterationsSet = 50; // Mantido fixo para este exemplo
+    double evaporationRates = 0.1;
+    int maxIterationsSet = 100;
     double alphas = 2.5;
     double betas =  5.0;
     double Qs = 10;
     double epsilons =  10;
     int choiceMethod = 3;
     
-    ofstream out("data/convergencia_10execucoes.csv");
-    out << "Execucao,Geracao";
+    ofstream out("data/convergencia_20_execucoes.csv");
+    out << "Execucao";
     for(int i = 0; i < maxIterationsSet; i++){
         out << ",ind" << i;
     }
@@ -348,6 +350,7 @@ void run_best_parameters(vector<vector<double>> &graph, int vertexCount){
     
     vector<vector<double>> resultados(numRun);
     for(int i = 0; i < numRun; i++){
+        cout << "Execucao: " << i << endl;
         double fitness = ACO(graph, 
             vertexCount, 
             evaporationRates, 
@@ -357,13 +360,19 @@ void run_best_parameters(vector<vector<double>> &graph, int vertexCount){
             choiceMethod,
             true
         );
-
         resultados[i] = runs_each_iteration;
     }
 
+    for(int i = 0; i < resultados.size(); i++){
+        out << i << ',';
+        for(auto x : resultados[i]){
+            out << x << ',';
+        }
+        out << '\n';
+    }
     
     out.close();
-    cout << "Experimentos Realizados\n";
+    cout << "Experimentos de convergencia realizado\n";
 
 }
 
@@ -371,11 +380,9 @@ int main() {
     int vertexCount;
     matriz_txt >> vertexCount;
 
-    cout << vertexCount << endl;
     vector<vector<double>> graph(vertexCount, vector<double>(vertexCount));
     graph = readGraph(vertexCount);
     
-   
-
+    run_best_parameters(graph, vertexCount);
     return 0;
 }
