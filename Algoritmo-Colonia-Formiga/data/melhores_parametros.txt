@@ -1,0 +1,9 @@
+Melhores parâmetros:
+P: 0.3
+MaxIteration: 50
+alpha: 2.5
+beta: 5.0
+epsilon: 10.0
+Q: 10.0
+method: 3
+AverageFitness: 291.0
