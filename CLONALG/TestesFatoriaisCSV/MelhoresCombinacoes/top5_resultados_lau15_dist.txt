@@ -1,0 +1,52 @@
+=== Top 5 melhores configurações (CLONALG TSP) ===
+
+Configuração 1:
+pop_size: 200
+generations: 500
+beta: 3
+mutation_rate: 0.5
+n: 50
+d: 20
+mean: 306.9
+std: 18.721378154398785
+
+Configuração 2:
+pop_size: 100
+generations: 500
+beta: 2
+mutation_rate: 0.5
+n: 50
+d: 40
+mean: 309.4
+std: 20.05592181875468
+
+Configuração 3:
+pop_size: 100
+generations: 300
+beta: 3
+mutation_rate: 0.2
+n: 50
+d: 20
+mean: 309.7
+std: 25.75286391840721
+
+Configuração 4:
+pop_size: 100
+generations: 500
+beta: 2
+mutation_rate: 0.5
+n: 50
+d: 20
+mean: 310.5
+std: 30.767677845427333
+
+Configuração 5:
+pop_size: 200
+generations: 500
+beta: 2
+mutation_rate: 0.2
+n: 50
+d: 40
+mean: 312.4
+std: 19.20520762709948
+
